@@ -128,30 +128,31 @@ ifeq ("$(origin O)", "command line")
   KBUILD_OUTPUT := $(O)
 endif
 
-# Cancel implicit rules on top Makefile
+# Cancel implicit rules
 $(CURDIR)/Makefile Makefile: ;
 
+# Check for spaces or colons in the current working directory
 ifneq ($(filter % %:%,% $(CURDIR)),)
   $(error main directory cannot contain spaces nor colons)
 endif
 
 ifneq ($(KBUILD_OUTPUT),)
-# check that the output directory actually exists
+# Check that the output directory actually exists
 saved-output := $(KBUILD_OUTPUT)
 KBUILD_OUTPUT := $(shell mkdir -p $(KBUILD_OUTPUT) && cd $(KBUILD_OUTPUT) \
-								&& /bin/pwd)
+                                && /bin/pwd)
 $(if $(KBUILD_OUTPUT),, \
      $(error failed to create output directory "$(saved-output)"))
 
 PHONY += $(MAKECMDGOALS) sub-make
 
 $(filter-out _all sub-make $(CURDIR)/Makefile, $(MAKECMDGOALS)) _all: sub-make
-	@:
+    @:
 
 # Invoke a second make in the output directory, passing relevant variables
 sub-make:
-	$(Q)$(MAKE) -C $(KBUILD_OUTPUT) KBUILD_SRC=$(CURDIR) \
-	-f $(CURDIR)/Makefile $(filter-out _all sub-make,$(MAKECMDGOALS))
+    $(Q)$(MAKE) -C $(KBUILD_OUTPUT) KBUILD_SRC=$(CURDIR) \
+    -f $(CURDIR)/Makefile $(filter-out _all sub-make,$(MAKECMDGOALS))
 
 # Leave processing to above invocation of make
 skip-makefile := 1
@@ -165,6 +166,8 @@ ifeq ($(skip-makefile),)
 # but we want to display it when entering to the output directory
 # so that IDEs/editors are able to understand relative filenames.
 MAKEFLAGS += --no-print-directory
+
+# Further Makefile content goes here...
 
 # Call a source code checker (by default, "sparse") as part of the
 # C compilation.
